@@ -22,6 +22,8 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <stdio.h>
+#include <string.h>
 using namespace std;
 
 // Will be used to create an array to hold individual arguments passed by

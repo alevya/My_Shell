@@ -17,6 +17,7 @@
 
 #include "general.h"
 
+
 // Given the number of arguments (argc) in an array of arguments (argv), this
 // will go through those arguments and, if necessary, bifurcate the arguments
 // into arrays cmd1 and cmd2.  It will return a PipeRedirect enum representing
@@ -69,6 +70,38 @@ PipeRedirect parse_command(int argc, char** argv, char** cmd1, char** cmd2) {
 }
 
 // This pipes the output of cmd1 into cmd2.
+void pipe_cmd(char** cmd1, char** cmd2){
+           int fds[2];
+           pipe(fds);
+	   pid_t pid1, pid2;
+
+           // child process #1
+           if (pid1 = fork() == 0) {
+                dup2(fds[1], 1);
+		close(fds[0]);
+		close(fds[1]);
+                execvp(cmd1[0], cmd1);
+                perror("execvp failed");
+
+                // child process #2
+                } else if ((pid2 = fork()) == 0) {
+                  dup2(fds[0], 0);
+
+                  close(fds[1]);
+                  execvp(cmd2[0], cmd2);
+                  perror("execvp failed");
+
+
+            } else {
+    	close(fds[1]);
+
+    	waitpid(pid1, NULL, 0);
+	waitpid(pid2, NULL, 0);
+
+		}
+}
+
+/*
 void pipe_cmd(char** cmd1, char** cmd2) {
   int fds[2]; // file descriptors
   pipe(fds);
@@ -103,7 +136,7 @@ void pipe_cmd(char** cmd1, char** cmd2) {
   // parent process
   } else
     waitpid(pid, NULL, 0);
-}
+}*/
 
 // This will get input from the user, split the input into arguments, insert
 // those arguments into the given array, and return the number of arguments as
@@ -118,7 +151,7 @@ int read_args(char **argv) {
     // Let the user exit out if their input suggests they want to.
     if (want_to_quit(arg)) {
       cout << "Goodbye!\n";
-      exit(0);
+      _exit(0);
     }
 
     // Convert that std::string into a C string.
@@ -246,3 +279,6 @@ bool want_to_quit(string choice) {
 
   return (choice == "quit" || choice == "exit");
 }
+
+
+
