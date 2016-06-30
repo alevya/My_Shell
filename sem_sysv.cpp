@@ -1,11 +1,9 @@
 #include <sys/types.h>
 #include <sys/ipc.h>
-#include <sys/msg.h>
 #include <string.h>
 #include <cstdio>
-#include <sys/sem.h>
 #include <unistd.h>
-#include <linux/sem.h>
+#include <sys/sem.h>
 
 int main()
 {
@@ -25,18 +23,19 @@ int main()
 		return -1;
 	}
 
-	union semun arg;
-	struct sembuf sem_opt[16];
+	//union semun arg;
+	//struct sembuf sem_opt[16];
 
 	for(int n=0; n <16; n++)
 	{
-		arg.val = n;
-		if(semctl(semid, n, SETVAL, arg) < 0)
+		//arg.val = n;
+		if(semctl(semid, n, SETVAL, n) < 0)
 		{
 			perror("Error SETVAL");
 			return -1;
 		}
 	}
+	//unlink(pathname);
 
 	return 0;
 }
